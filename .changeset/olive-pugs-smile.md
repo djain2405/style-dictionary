@@ -23,4 +23,4 @@ The `time/seconds` transform now also matches `duration` tokens and handles thei
 }
 ```
 
-`duration` tokens keep the unit they were authored with, since converting them to seconds loses precision for sub-10ms durations. `time` tokens are still converted from milliseconds to seconds, except that a `time` token which already declares seconds, e.g. `"0.36s"`, is no longer divided a second time into `"0.00s"`.
+`time/seconds` keeps the precision of the input through the conversion. Two decimals is still the minimum, so existing output is unchanged, but more decimals are used when the value needs them: a 1ms duration now resolves to `0.001s` instead of being rounded away to `0.00s`. A value that is already in seconds, e.g. `"0.36s"`, is no longer divided a second time into `"0.00s"`.

@@ -574,21 +574,22 @@ Wraps the value in a double-quoted string to make a string literal.
 
 ### time/seconds
 
-Turns `time` and `duration` type tokens into valid CSS time values.
+Turns `time` and `duration` type tokens into seconds.
 
-Style Dictionary specific `time` tokens are assumed to be milliseconds and are converted into seconds.
-A `time` token that already declares seconds, e.g. `"0.36s"`, is kept as is rather than divided again.
+Values may be written as a [DTCG object](https://www.designtokens.org/tr/2025.10/format/#duration)
+`{ "value": 200, "unit": "ms" }`, as a string such as `"200ms"`, or as a unitless number.
+A value without a unit is interpreted as milliseconds. A value that is already in seconds is
+no longer divided a second time.
 
-DTCG `duration` tokens keep the unit they were authored with, because converting them to seconds
-would lose precision for sub-10ms durations. Duration values may be written as a
-[DTCG object](https://www.designtokens.org/tr/2025.10/format/#duration) `{ "value": 200, "unit": "ms" }`,
-as a string such as `"200ms"`, or as a unitless number, which is interpreted as milliseconds.
+The precision of the input is kept through the conversion. Two decimals is the minimum, and more
+decimals are used when the value needs them, so a 1ms duration resolves to `0.001s` rather than
+being rounded away to `0.00s`.
 
 ```js
 // Matches: token.type === 'time' || token.type === 'duration'
 // Returns:
-'0.50s'; // time token, value 500
-'200ms'; // duration token, value { value: 200, unit: 'ms' }
+'0.50s'; // from value 500, or { value: 500, unit: 'ms' }
+'0.001s'; // from { value: 1, unit: 'ms' }
 ```
 
 ---

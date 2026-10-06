@@ -675,8 +675,8 @@ Use log.verbosity "verbose" or use CLI option --verbose for more details.
         });
 
         const transformed = await sd.exportPlatform('css');
-        expect(transformed.fast.$value).to.equal('200ms');
-        expect(transformed.foo.$value).to.equal('200ms ease-in-out 0ms');
+        expect(transformed.fast.$value).to.equal('0.20s');
+        expect(transformed.foo.$value).to.equal('0.20s ease-in-out 0.00s');
       });
 
       it('should properly transform duration tokens that reference other duration tokens', async () => {
@@ -699,7 +699,7 @@ Use log.verbosity "verbose" or use CLI option --verbose for more details.
         });
 
         const transformed = await sd.exportPlatform('css');
-        expect(transformed.alias.$value).to.equal('200ms');
+        expect(transformed.alias.$value).to.equal('0.20s');
       });
     });
 
