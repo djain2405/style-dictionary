@@ -1815,12 +1815,12 @@ describe('common', () => {
             {},
             {},
           );
-          expect(value).to.equal('1.00s');
+          expect(value).to.equal('1s');
         });
 
         it('should convert unitless and millisecond time values to seconds', () => {
-          expect(runTransform(timeSeconds, { value: 500, type: 'time' })).to.equal('0.50s');
-          expect(runTransform(timeSeconds, { value: '500ms', type: 'time' })).to.equal('0.50s');
+          expect(runTransform(timeSeconds, { value: 500, type: 'time' })).to.equal('0.5s');
+          expect(runTransform(timeSeconds, { value: '500ms', type: 'time' })).to.equal('0.5s');
         });
 
         it('should not convert time values that are already in seconds', () => {
@@ -1835,7 +1835,7 @@ describe('common', () => {
               {},
               { usesDtcg: true },
             ),
-          ).to.equal('0.20s');
+          ).to.equal('0.2s');
 
           expect(
             runTransform(
@@ -1844,7 +1844,7 @@ describe('common', () => {
               {},
               { usesDtcg: true },
             ),
-          ).to.equal('0.20s');
+          ).to.equal('0.2s');
         });
 
         it('should keep the precision of the input through the conversion', () => {
@@ -1880,7 +1880,41 @@ describe('common', () => {
             ),
           ).to.equal('0.0011s');
 
-          // values that need fewer decimals still use the 2 decimals of the old behavior
+          // the division pushes small values into scientific notation,
+          // 0.0001 / 1000 is 1e-7 in JS, which would be read as 0 decimals
+          expect(
+            runTransform(
+              timeSeconds,
+              durationToken({ value: 0.0001, unit: 'ms' }),
+              {},
+              { usesDtcg: true },
+            ),
+          ).to.equal('0.0000001s');
+
+          // values above a second keep their decimals too, the division is
+          // only accurate to 15 significant digits rather than 15 decimals
+          expect(
+            runTransform(
+              timeSeconds,
+              durationToken({ value: 123456.789, unit: 'ms' }),
+              {},
+              { usesDtcg: true },
+            ),
+          ).to.equal('123.456789s');
+        });
+
+        it('should not pad the output with decimals the input did not need', () => {
+          const durationToken = ($value) => ({ $value, $type: 'duration' });
+
+          expect(
+            runTransform(
+              timeSeconds,
+              durationToken({ value: 1000000, unit: 'ms' }),
+              {},
+              { usesDtcg: true },
+            ),
+          ).to.equal('1000s');
+
           expect(
             runTransform(
               timeSeconds,
@@ -1888,12 +1922,12 @@ describe('common', () => {
               {},
               { usesDtcg: true },
             ),
-          ).to.equal('1.00s');
+          ).to.equal('1s');
         });
 
         it('should handle duration tokens that use string or unitless values', () => {
-          expect(runTransform(timeSeconds, { value: '200ms', type: 'duration' })).to.equal('0.20s');
-          expect(runTransform(timeSeconds, { value: 200, type: 'duration' })).to.equal('0.20s');
+          expect(runTransform(timeSeconds, { value: '200ms', type: 'duration' })).to.equal('0.2s');
+          expect(runTransform(timeSeconds, { value: 200, type: 'duration' })).to.equal('0.2s');
         });
 
         it('should match both time and duration tokens', () => {

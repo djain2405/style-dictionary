@@ -581,15 +581,16 @@ Values may be written as a [DTCG object](https://www.designtokens.org/tr/2025.10
 A value without a unit is interpreted as milliseconds. A value that is already in seconds is
 no longer divided a second time.
 
-The precision of the input is kept through the conversion. Two decimals is the minimum, and more
-decimals are used when the value needs them, so a 1ms duration resolves to `0.001s` rather than
-being rounded away to `0.00s`.
+The output uses the minimum amount of decimals that keeps the precision of the input, so a 1ms
+duration resolves to `0.001s` rather than being rounded away to `0s`, and a value that needs no
+decimals is not padded with them.
 
 ```js
 // Matches: token.type === 'time' || token.type === 'duration'
 // Returns:
-'0.50s'; // from value 500, or { value: 500, unit: 'ms' }
+'0.5s'; // from value 500, or { value: 500, unit: 'ms' }
 '0.001s'; // from { value: 1, unit: 'ms' }
+'1000s'; // from { value: 1000000, unit: 'ms' }
 ```
 
 ---
