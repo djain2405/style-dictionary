@@ -2,8 +2,7 @@ import { expect } from 'chai';
 import Color from 'tinycolor2';
 import transforms, {
   isColor,
-  getTokenDimensionValue,
-  getTokenDurationValue,
+  getTokenUnitAndValue,
   isDTCGColorObject,
 } from '../../lib/common/transforms.js';
 import { transforms as transformNames } from '../../lib/enums/index.js';
@@ -2671,7 +2670,7 @@ describe('common', () => {
   });
 
   describe('transform utilities', () => {
-    describe('function getTokenDimensionValue', () => {
+    describe('function getTokenUnitAndValue', () => {
       it('should return token value', () => {
         const allTokensNonDtcg = [
           { value: '42px' },
@@ -2718,73 +2717,22 @@ describe('common', () => {
         ];
 
         allTokensDtcg.forEach((it, idx) => {
-          expect(getTokenDimensionValue(it.$value)).to.deep.equal(expected[idx]);
+          expect(getTokenUnitAndValue(it.$value)).to.deep.equal(expected[idx]);
         });
 
         allTokensNonDtcg.forEach((it, idx) => {
-          expect(getTokenDimensionValue(it.value)).to.deep.equal(expected[idx]);
+          expect(getTokenUnitAndValue(it.value)).to.deep.equal(expected[idx]);
         });
       });
 
       it('should gracefully handle dimension values that cannot be parsed', () => {
-        expect(getTokenDimensionValue('something weird')).to.deep.equal({
+        expect(getTokenUnitAndValue('something weird')).to.deep.equal({
           value: 'something weird',
           unit: undefined,
         });
 
-        expect(getTokenDimensionValue('calc(100% - 20px)')).to.deep.equal({
+        expect(getTokenUnitAndValue('calc(100% - 20px)')).to.deep.equal({
           value: 'calc(100% - 20px)',
-          unit: undefined,
-        });
-      });
-    });
-
-    describe('function getTokenDurationValue', () => {
-      it('should return token value', () => {
-        const allTokensNonDtcg = [
-          { value: '200ms' },
-          { value: '0.2s' },
-
-          // unitless values, which used to be the only way to define a time token
-          { value: 200 },
-          { value: '200' },
-        ];
-
-        const allTokensDtcg = [
-          { $value: '200ms' },
-          { $value: '0.2s' },
-
-          { $value: 200 },
-          { $value: '200' },
-
-          // new DTCG duration syntax
-          { $value: { value: 200, unit: 'ms' } },
-          { $value: { value: 0.2, unit: 's' } },
-        ];
-
-        const expected = [
-          { value: '200', unit: 'ms' },
-          { value: '0.2', unit: 's' },
-
-          { value: 200, unit: undefined },
-          { value: '200', unit: undefined },
-
-          { value: 200, unit: 'ms' },
-          { value: 0.2, unit: 's' },
-        ];
-
-        allTokensDtcg.forEach((it, idx) => {
-          expect(getTokenDurationValue(it.$value)).to.deep.equal(expected[idx]);
-        });
-
-        allTokensNonDtcg.forEach((it, idx) => {
-          expect(getTokenDurationValue(it.value)).to.deep.equal(expected[idx]);
-        });
-      });
-
-      it('should gracefully handle duration values that cannot be parsed', () => {
-        expect(getTokenDurationValue('something weird')).to.deep.equal({
-          value: 'something weird',
           unit: undefined,
         });
       });
